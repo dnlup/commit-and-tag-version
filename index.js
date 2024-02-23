@@ -84,9 +84,14 @@ module.exports = async function standardVersion(argv) {
     }
 
     const newVersion = await bump(args, version);
-    await changelog(args, newVersion);
-    await commit(args, newVersion);
+    const generatedChangelog = await changelog(args, newVersion);
+    const commitMsg = await commit(args, newVersion);
     await tag(newVersion, pkg ? pkg.private : false, args);
+    return {
+      changelog: generatedChangelog,
+      version: args.tagPrefix + newVersion,
+      commit: commitMsg,
+    };
   } catch (err) {
     printError(args, err.message);
     throw err;
